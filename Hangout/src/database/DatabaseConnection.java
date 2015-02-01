@@ -5,12 +5,12 @@ public class DatabaseConnection {
 	private String host;
 	private String username;
 	private String password;
-	private String dbname = "";
+	private String dbname = "hangout";
 	
 	public DatabaseConnection() {
-		host = "";
-		username = "";
-		password = "";
+		host = "3b8d7b13-d98d-4bb1-9451-12c2c57a6e29-bluemix.cloudant.com";
+		username = "iverplandiedgromentoorte";
+		password = "HLdSVLFQvhbOs8yB8ieSbfsK";
 	}
 
 	public String getHost() {

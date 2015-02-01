@@ -24,14 +24,6 @@
 					<failOnMissingWebXml>false</failOnMissingWebXml>
 				</configuration>
 			</plugin>
-			<plugin>
-				<groupId>com.heroku.sdk</groupId>
-				<artifactId>heroku-maven-plugin</artifactId>
-				<version>0.3.0</version>
-				<configuration>
-					<appName>project-hangout</appName>
-				</configuration>
-			</plugin>
 		</plugins>
 	</build>
 </project>
