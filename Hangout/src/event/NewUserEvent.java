@@ -1,11 +1,11 @@
 package event;
 
-public class LoginEvent {
-
+public class NewUserEvent {
+	
 	private String username;
 	private String encryptedPassword;
 
-	private long timeStamp;
+	private long timeUserCreated;
 
 	public String getUsername() {
 		return username;
@@ -23,11 +23,11 @@ public class LoginEvent {
 		this.encryptedPassword = password;
 	}
 
-	public long getTimeStamp() {
-		return timeStamp;
+	public long getTimeUserCreated() {
+		return timeUserCreated;
 	}
 
-	public void setTimeStamp(long timeStamp) {
-		this.timeStamp = timeStamp;
+	public void setTimeUserCreated(long timeUserCreated) {
+		this.timeUserCreated = timeUserCreated;
 	}
 }

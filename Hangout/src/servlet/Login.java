@@ -1,8 +1,6 @@
 package servlet;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
@@ -11,16 +9,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbProperties;
 
-import utility.URIFormulator;
-import database.DatabaseConnection;
-import event.LoginEvent;
+import utility.ReturnCodes;
+import database.Database;
+import database.DatabaseConstants;
 
 @WebServlet("/Login")
 public class Login extends HttpServlet {
@@ -31,7 +24,7 @@ public class Login extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected synchronized void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.setContentType("text/json");
+		/*response.setContentType("text/json");
 		response.setStatus(200);
 	      
 		
@@ -58,12 +51,10 @@ public class Login extends HttpServlet {
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		
-		PrintWriter out = new PrintWriter("out.txt");
+		event.setTimeStamp(System.currentTimeMillis());
+		event.setUsername(username);
+		event.setPassword(password);*/
 		
-		out.println(username);
-		out.println(password);
-		
-		out.close();
 		/*int code = validateUserInfo(username, password);
 		if (code != 0) {
 			// successful login
@@ -103,10 +94,51 @@ public class Login extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-						
+		response.setContentType("text/json");
+		response.setStatus(200);
+	      
+		
+		PrintWriter writer = response.getWriter();
+			
+       
+		/*CouchDbProperties properties = new CouchDbProperties()
+		  .setDbName(DatabaseConstants.DB_NAME)
+		  .setCreateDbIfNotExist(false)
+		  .setProtocol("https")
+		  .setHost(DatabaseConstants.HOST)
+		  .setPort(443)
+		  .setUsername(DatabaseConstants.USERNAME)
+		  .setPassword(DatabaseConstants.PASSWORD)
+		  .setMaxConnections(100)
+		  .setConnectionTimeout(0);
+		
+		CouchDbClient dbClient = new CouchDbClient(properties);*/
+		
+		String username = request.getParameter("username");
+		String password = request.getParameter("password");
+		
+		Database connection = Database.createInstance(username, null);
+		String expectedPass = connection.getAccountPassword(username);
+		
+		if (expectedPass.equals("")) {
+			writer.println(ReturnCodes.LOGIN_USERNAME_DOES_NOT_EXIST);
+		}
+		else if (password.equals(expectedPass)) {
+			writer.println(ReturnCodes.LOGIN_SUCCESS);
+		}
+		else {
+			writer.println(ReturnCodes.LOGIN_INCORRECT_PASSWORD);
+		}
+		
+		writer.close();
+		/*writer.println("Received: ");
+		writer.println("\tusername: " + username);
+		writer.println("\tpassword: " + password);
+		writer.println("\texpected: " + expectedPass);*/
+		
 	}
 
-	public int validateUserInfo(String username, String password) {
+	/*public int validateUserInfo(String username, String password) {
 		
 		String actualPassword = null;
 		try {
@@ -132,11 +164,6 @@ public class Login extends HttpServlet {
 		}
 		
 		return 0;
-	}
-	
-	public static void main(String[] args) {
-		Login login = new Login();
-		
-		login.validateUserInfo("yes", "no");
-	}
+	}*/
+
 }
