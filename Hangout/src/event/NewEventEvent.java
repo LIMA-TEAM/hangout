@@ -1,6 +1,7 @@
 package event;
 
-public class NewEventEvent {
+
+public class NewEventEvent implements Model {
 
 	private String id;
 	private String title;
