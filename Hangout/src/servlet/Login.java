@@ -97,9 +97,7 @@ public class Login extends HttpServlet {
 		response.setContentType("text/json");
 		response.setStatus(200);
 	      
-		
 		PrintWriter writer = response.getWriter();
-			
        
 		/*CouchDbProperties properties = new CouchDbProperties()
 		  .setDbName(DatabaseConstants.DB_NAME)
@@ -121,13 +119,14 @@ public class Login extends HttpServlet {
 		String expectedPass = connection.getAccountPassword(username);
 		
 		if (expectedPass.equals("")) {
-			writer.println(ReturnCodes.LOGIN_USERNAME_DOES_NOT_EXIST);
+			writer.print(ReturnCodes.LOGIN_USERNAME_DOES_NOT_EXIST);
 		}
 		else if (password.equals(expectedPass)) {
-			writer.println(ReturnCodes.LOGIN_SUCCESS);
+			String id = connection.getUserId(username);
+			writer.print(ReturnCodes.LOGIN_SUCCESS + "," + id);
 		}
 		else {
-			writer.println(ReturnCodes.LOGIN_INCORRECT_PASSWORD);
+			writer.print(ReturnCodes.LOGIN_INCORRECT_PASSWORD);
 		}
 		
 		writer.close();

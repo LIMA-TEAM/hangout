@@ -14,52 +14,40 @@ import org.lightcouch.CouchDbClient;
 import org.lightcouch.CouchDbProperties;
 
 import utility.ReturnCodes;
+import container.NewEventEventContainer;
 import container.NewUserEventContainer;
 import database.Database;
-import database.DatabaseConnection;
 import database.DatabaseConstants;
-import event.LoginEvent;
-import event.NewUserEvent;
+import event.NewEventEvent;
 
 /**
- * Servlet implementation class NewUser
+ * Servlet implementation class NewEvent
  */
-@WebServlet("/NewUser")
-public class NewUser extends HttpServlet {
+@WebServlet("/NewEvent")
+public class NewEvent extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
     /**
      * @see HttpServlet#HttpServlet()
      */
-    public NewUser() {
+    public NewEvent() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+		
 	}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		/*PrintWriter writer = response.getWriter();
-		
-		String username = request.getParameter("username");
-		String password = request.getParameter("password");
-		
-		writer.println("Username: " + username);
-		writer.println("Password: " + password);
-		writer.close();*/
-		
 		response.setContentType("text/json");
 		response.setStatus(200);
 	      
-		
 		PrintWriter writer = response.getWriter();
 			
 		CouchDbProperties properties = new CouchDbProperties()
@@ -75,27 +63,30 @@ public class NewUser extends HttpServlet {
 		
 		CouchDbClient dbClient = new CouchDbClient(properties);
 		
-		NewUserEvent event = new NewUserEvent();
-		String username = request.getParameter("username");
-		String password = request.getParameter("password");
+		NewEventEvent event = new NewEventEvent();
+		String title = request.getParameter("title");
+		String hostId = request.getParameter("host");
+		String lat = request.getParameter("lat");
+		String lon = request.getParameter("lon");
+		String startTimeString = request.getParameter("startTime");
+		String endTimeString = request.getParameter("endTime");
+		long startTime = Long.parseLong(startTimeString);
+		long endTime = Long.parseLong(endTimeString);
 		String id = UUID.randomUUID().toString();
 		
-		if (Database.createInstance(username, null).getAccountPassword(username).equals("")) {
-			event.setTimeUserCreated(System.currentTimeMillis());
-			event.setUsername(username);
-			event.setEncryptedPassword(password);
-			event.setId(id);
-			
-			NewUserEventContainer container = new NewUserEventContainer();
-			container.setEvent(event);
-			
-			dbClient.save(container);
-			writer.print(ReturnCodes.NEW_USER_SUCCESS);
-		} 
-		else {
-			writer.print(ReturnCodes.NEW_USER_USERNAME_ALREADY_EXISTS);
-		}
-		//https://3b8d7b13-d98d-4bb1-9451-12c2c57a6e29-bluemix.cloudant.com/hangout/_design/user/_list/listuser/getuser?key=%22test%22
+		event.setId(id);
+		event.setStartTime(startTime);
+		event.setEndTime(endTime);
+		event.setHostId(hostId);
+		event.setTitle(title);
+		event.setLat(Double.parseDouble(lat));
+		event.setLon(Double.parseDouble(lon));
+		
+		NewEventEventContainer container = new NewEventEventContainer();
+		container.setEvent(event);
+		
+		dbClient.save(container);
+		writer.print(ReturnCodes.NEW_EVENT_SUCCESS);
 	}
 
 }

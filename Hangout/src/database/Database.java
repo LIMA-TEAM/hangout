@@ -8,6 +8,10 @@ import java.net.URLConnection;
 
 import org.apache.commons.codec.binary.Base64;
 
+import com.google.gson.Gson;
+
+import event.NewEventEvent;
+
 public class Database {
 
 	//When requesting data, the user must always pass in their authentication token. The token may then be used in the
@@ -23,10 +27,31 @@ public class Database {
 	}
 	
 	private Database() {
+		
 	}
 	
 	public String getAccountPassword(String username) {
 		return retrieveDatabaseData(DatabaseConstants.getAccountPasswordURL(username));
+	}
+	
+	public String getUserId(String username) {
+		return retrieveDatabaseData(DatabaseConstants.getUserIdURL(username));
+	}
+	
+	public String getEventJson(String eventId) {
+		String rawData = retrieveDatabaseData(DatabaseConstants.getEventInfoURL(eventId));
+		String[] attributes = rawData.split(",");
+		NewEventEvent event = new NewEventEvent();
+		event.setId(eventId);
+		event.setTitle(attributes[0]);
+		event.setHostId(attributes[1]);
+		event.setLat(Double.parseDouble(attributes[2]));
+		event.setLon(Double.parseDouble(attributes[3]));
+		event.setStartTime(Long.parseLong(attributes[4]));
+		event.setEndTime(Long.parseLong(attributes[5]));
+		Gson serializer = new Gson();
+		
+		return serializer.toJson(event);
 	}
 	
 	private String retrieveDatabaseData(String urlString) {

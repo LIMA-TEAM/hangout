@@ -2,10 +2,20 @@ package event;
 
 public class NewUserEvent {
 	
+	private String id;
 	private String username;
 	private String encryptedPassword;
 
 	private long timeUserCreated;
+
+	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	public String getUsername() {
 		return username;
@@ -15,11 +25,11 @@ public class NewUserEvent {
 		this.username = username;
 	}
 
-	public String getPassword() {
+	public String getEncryptedPassword() {
 		return encryptedPassword;
 	}
 
-	public void setPassword(String password) {
+	public void setEncryptedPassword(String password) {
 		this.encryptedPassword = password;
 	}
 
