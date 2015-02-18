@@ -7,6 +7,11 @@ public class ReturnCodes {
 	public static final int LOGIN_USERNAME_DOES_NOT_EXIST = 1001;
 	public static final int LOGIN_INCORRECT_PASSWORD = 1002;
 	
+	// Update User
+	public static final int UPDATE_USER_PASSWORD_SUCCESS = 1050;
+	public static final int UPDATE_USER_PASSWORD_FAILURE_INCORRECT_OLD_PASS = 1051;
+	public static final int UPDATE_USER_PASSWORD_FAILURE_UNKNOWN = 1052;
+	
 	// New User
 	public static final int NEW_USER_SUCCESS = 1100;
 	public static final int NEW_USER_USERNAME_ALREADY_EXISTS = 1101;
@@ -16,4 +21,5 @@ public class ReturnCodes {
 	
 	// Get Event
 	public static final int GET_EVENT_DOES_NOT_EXIST = 1301;
+
 }
