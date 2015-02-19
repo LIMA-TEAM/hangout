@@ -5,6 +5,7 @@ public class NewUserEvent {
 	private String id;
 	private String username;
 	private String encryptedPassword;
+	private String name;
 
 	private long timeUserCreated;
 
@@ -39,5 +40,13 @@ public class NewUserEvent {
 
 	public void setTimeUserCreated(long timeUserCreated) {
 		this.timeUserCreated = timeUserCreated;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 }

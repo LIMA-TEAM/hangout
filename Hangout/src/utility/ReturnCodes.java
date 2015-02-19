@@ -18,8 +18,12 @@ public class ReturnCodes {
 	
 	// New Event
 	public static final int NEW_EVENT_SUCCESS = 1200;
+	public static final int NEW_EVENT_FAILURE = 1201;
 	
 	// Get Event
 	public static final int GET_EVENT_DOES_NOT_EXIST = 1301;
+	
+	// Get Most Recent Events
+	public static final int GET_MOST_RECENT_EVENTS_FAILURE = 1311;
 
 }

@@ -19,6 +19,7 @@ import utility.ReturnCodes;
 
 import com.google.gson.Gson;
 
+import container.NewEventEventContainer;
 import container.NewUserEventContainer;
 import event.NewEventEvent;
 import event.NewUserEvent;
@@ -40,6 +41,10 @@ public class Database {
 	
 	private Database() {
 		
+	}
+	
+	public String getUserStringName(String userId) {
+		return retrieveDatabaseData(DatabaseConstants.getUserStringNameFromId(userId));
 	}
 	
 	//////////////////////////////////////////////////////////////////////////////////////
@@ -119,51 +124,6 @@ public class Database {
 	
 	//////////////////////////////////////////////////////////////////////////////////////
 	
-	/*public String getMostRecentEventsXML(int count) {
-		StringWriter writer = new StringWriter();
-		
-		try {
-
-			List<NewEventEvent> events = getMostRecentEvents(count);
-
-			JAXBContext context = JAXBContext.newInstance(NewEventEvent[].class);
-
-		    Marshaller m = context.createMarshaller();
-		    
-		    NewEventEvent[] eventArr = new NewEventEvent[events.size()];
-		    int i = 0;
-		    for (NewEventEvent event : events) {
-		    	eventArr[i] = event;
-		    	i++;
-		    }
-			m.marshal(eventArr, writer);
-		} catch (JAXBException e) {
-			e.printStackTrace();
-		}
-		
-		List<NewEventEvent> events = getMostRecentEvents(count);
-	    NewEventEvent[] eventArr = new NewEventEvent[events.size()];
-	    int i = 0;
-	    for (NewEventEvent event : events) {
-	    	eventArr[i] = event;
-	    	i++;
-	    }
-		
-	    XStream xstream = new XStream();
-	    xstream.alias("events", NewEventEvent[].class);
-	    return xstream.toXML(eventArr);
-	    
-	    Serializer serializer = new Persister();
-	    
-	    try {
-			serializer.write(eventArr, writer);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	    
-	    return writer.toString();
-	}*/
-	
 	public String getMostRecentEventsJson(int count) {
 		/*List<String> eventJson = new ArrayList<String>();
 		List<EventTime> events = new ArrayList<EventTime>();
@@ -211,6 +171,13 @@ public class Database {
 		return eventList;
 	}
 	
+	public int saveNewEvent(NewEventEvent event) {
+		NewEventEventContainer container = new NewEventEventContainer();
+		container.setEvent(event);
+		getDBClient().save(container);
+		return ReturnCodes.NEW_EVENT_SUCCESS;
+	}
+	
 	public String getAllEventsIdsAndTimes() {
 		return retrieveDatabaseData(DatabaseConstants.getAllEventsIdsAndTimesURL());
 	}
@@ -238,8 +205,6 @@ public class Database {
 		
 		return serializer.toJson(event);
 		
-//		String csvData = retrieveDatabaseData(DatabaseConstants.getEventInfoURL(eventId));
-//		return Serializer.serializeCSVToJSON(NewEventEvent.class, csvData, DatabaseConstants.LIST_ORDER_EVENT_INFO);
 	}
 	
 	private List<EventTime> sortEventsByTime(List<EventTime> events) {

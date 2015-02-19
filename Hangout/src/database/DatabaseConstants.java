@@ -22,6 +22,7 @@ public class DatabaseConstants {
 	private static final String GET_ACCOUNT_PASSWORD_SUFFIX = "_design/user/_list/listuser/getuser?key=";
 	private static final String GET_ACCOUNT_ID_SUFFIX = "_design/user/_list/listuser/getid?key=";
 	private static final String GET_ACCOUNT_PASSWORD_FROM_ID_SUFFIX = "_design/user/_list/listuser/getpassfromid?key=";
+	private static final String GET_ACCOUNT_NAME_FROM_ID_SUFFIX = "_design/user/_list/listuser/getnamefromid?key=";
 	private static final String GET_EVENT_INFO_SUFFIX = "_design/event/_list/listevent/getevent?key=";
 	private static final String GET_EVENTS_ALL_IDS_AND_TIMES = "_design/event/_list/listtimes/getall?";
 	private static final String GET_ACCOUNT_INFO_SUFFIX = "_design/user/_list/listuserinfo/getdoc?key=";
@@ -56,6 +57,10 @@ public class DatabaseConstants {
 	
 	public static String getUserDocumentHandleFromUserId(String userId) {
 		return "https://" + HOST + "/" + DB_NAME + "/" + GET_ACCOUNT_DOCUMENT_ID_SUFFIX + URL_DOUBLE_QUOTE_CODE + userId + URL_DOUBLE_QUOTE_CODE + AND + INCLUDE_DOCS; 
+	}
+	
+	public static String getUserStringNameFromId(String userId) {
+		return "https://" + HOST + "/" + DB_NAME + "/" + GET_ACCOUNT_NAME_FROM_ID_SUFFIX + URL_DOUBLE_QUOTE_CODE + userId + URL_DOUBLE_QUOTE_CODE;
 	}
 }
 
