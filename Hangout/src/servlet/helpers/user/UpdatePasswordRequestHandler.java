@@ -6,10 +6,9 @@ import java.io.PrintWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import database.Database;
 import servlet.helpers.ServletRequestHandler;
 import utility.ActionCodes;
-import utility.ReturnCodes;
+import database.Database;
 
 public class UpdatePasswordRequestHandler implements ServletRequestHandler {
 

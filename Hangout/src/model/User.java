@@ -1,10 +1,15 @@
 package model;
 
+/**
+ * This class was made to model the user without containing their password. 
+ * @author Alex
+ *
+ */
 public class User {
 
 	private String id;
 	private String username;
-	private String phoneNumber;
+	private String name;
 	private long createdTimeStamp;
 	
 	public String getId() {
@@ -19,11 +24,11 @@ public class User {
 	public void setUsername(String username) {
 		this.username = username;
 	}
-	public String getPhoneNumber() {
-		return phoneNumber;
+	public String getName() {
+		return name;
 	}
-	public void setPhoneNumber(String phoneNumber) {
-		this.phoneNumber = phoneNumber;
+	public void setName(String name) {
+		this.name = name;
 	}
 	public long getCreatedTimeStamp() {
 		return createdTimeStamp;

@@ -8,6 +8,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.EventAndHost;
 import model.EventTime;
 import model.User;
 
@@ -19,11 +20,12 @@ import utility.ReturnCodes;
 
 import com.google.gson.Gson;
 
+import container.AddFriendEventContainer;
 import container.NewEventEventContainer;
 import container.NewUserEventContainer;
+import event.AddFriendEvent;
 import event.NewEventEvent;
 import event.NewUserEvent;
-import flexjson.JSONSerializer;
 
 public class Database {
 
@@ -43,11 +45,96 @@ public class Database {
 		
 	}
 	
+	public String getUserFriendListById(String userId) {
+		String[] ids = getFriendsListIds(userId).split(",");
+		List<User> users = new ArrayList<User>();
+		
+		for (String id : ids) {
+			users.add(getUserInfoModel(id));
+		}
+		
+		Gson gson = new Gson();
+		
+		return gson.toJson(users.toArray());
+	}
+	
+	public int removeFriend(String userId, String friendId) {
+		String friendsList = getFriendsListIds(userId);
+		if (friendsList == null || friendsList.equals("")) {
+			return ReturnCodes.REMOVE_FRIEND_FAILURE;
+		}
+		else if (!friendsList.contains(friendId)) {
+			return ReturnCodes.REMOVE_FRIEND_FAILURE;
+		}
+		else {
+			String[] ids = friendsList.split(",");
+			String updatedList = "";
+			for (String id : ids) {
+				if (!id.equals(friendId)) {
+					updatedList += id + ",";
+				}
+			}
+			DocumentHandle doc = getFriendsListDocument(userId);
+			getDBClient().remove(doc.get_id(), doc.get_rev());
+			
+			AddFriendEvent event = new AddFriendEvent();
+			
+			event.setUserId(userId);
+			event.setFriendId(updatedList);
+			
+			AddFriendEventContainer container = new AddFriendEventContainer();
+			container.setFriendList(event);
+			
+			getDBClient().save(container);
+		}
+		
+		return ReturnCodes.REMOVE_FRIEND_SUCCESS;
+	}
+	
+	public int addFriend(String userId, String friendId) {
+		String friendsList = getFriendsListIds(userId);
+		if (friendsList == null || friendsList.equals("")) {
+			// must create friends list (add first friend)
+			AddFriendEvent event = new AddFriendEvent();
+			event.setFriendId(friendId);
+			event.setUserId(userId + ",");
+			
+			AddFriendEventContainer container = new AddFriendEventContainer();
+			container.setFriendList(event);
+			
+			getDBClient().save(container);
+		}
+		else {
+			String updatedList = friendsList + friendId + ",";
+			DocumentHandle doc = getFriendsListDocument(userId);
+			getDBClient().remove(doc.get_id(), doc.get_rev());
+			
+			AddFriendEvent event = new AddFriendEvent();
+			
+			event.setUserId(userId);
+			event.setFriendId(updatedList);
+			
+			AddFriendEventContainer container = new AddFriendEventContainer();
+			container.setFriendList(event);
+			
+			getDBClient().save(container);
+		}
+		
+		return ReturnCodes.ADD_FRIEND_SUCCESS;
+	}
+	
+	public String getFriendsListIds(String userId) {
+		
+		return retrieveDatabaseData(DatabaseConstants.getFriendsListUrl(userId));
+	}
+	
 	public String getUserStringName(String userId) {
 		return retrieveDatabaseData(DatabaseConstants.getUserStringNameFromId(userId));
 	}
 	
-	//////////////////////////////////////////////////////////////////////////////////////
+	public String getUserInfoByUsernameJson(String username) {
+		return getUserInfoJson(getUserId(username));
+	}
 	
 	public int updateUserPassword(String userId, String oldPass, String newPass) {
 		if (getAccountPasswordFromId(userId).equals(oldPass)) {
@@ -62,7 +149,7 @@ public class Database {
 			event.setUsername(userInfo.getUsername());
 			event.setTimeUserCreated(userInfo.getCreatedTimeStamp());
 			event.setEncryptedPassword(newPass);
-			
+			event.setName(userInfo.getName());
 			saveNewUser(event);
 			
 			return ReturnCodes.UPDATE_USER_PASSWORD_SUCCESS;
@@ -107,13 +194,30 @@ public class Database {
 	
 	public String getUserInfoJson(String userId) {
 		String rawData = retrieveDatabaseData(DatabaseConstants.getUserInfoURL(userId));
+		if (rawData == null || rawData.equals("")) {
+			return null;
+		}
 		String[] attributes = rawData.split(",");
 		User user = new User();
 		user.setId(attributes[0]);
 		user.setUsername(attributes[1]);
-		user.setPhoneNumber(attributes[2]);
-		user.setCreatedTimeStamp(Long.parseLong(attributes[3]));
+		user.setName(attributes[2]);
+		user.setCreatedTimeStamp(Long.parseLong(attributes[3].trim()));
 		return (new Gson()).toJson(user);
+	}
+	
+	public User getUserInfoModel(String userId) {
+		String rawData = retrieveDatabaseData(DatabaseConstants.getUserInfoURL(userId));
+		if (rawData == null || rawData.equals("")) {
+			return null;
+		}
+		String[] attributes = rawData.split(",");
+		User user = new User();
+		user.setId(attributes[0]);
+		user.setUsername(attributes[1]);
+		user.setName(attributes[2]);
+		user.setCreatedTimeStamp(Long.parseLong(attributes[3].trim()));
+		return user;
 	}
 	
 	private DocumentHandle getUserDocument(String userId) {
@@ -122,35 +226,22 @@ public class Database {
 		return new DocumentHandle(csv[0], csv[1]);
 	}
 	
-	//////////////////////////////////////////////////////////////////////////////////////
+	private DocumentHandle getFriendsListDocument(String userId) {
+		String[] csv = retrieveDatabaseData(DatabaseConstants.getFriendsListDocumentHandle(userId)).split(",");
+		
+		return new DocumentHandle(csv[0], csv[1]);
+	}
 	
 	public String getMostRecentEventsJson(int count) {
-		/*List<String> eventJson = new ArrayList<String>();
-		List<EventTime> events = new ArrayList<EventTime>();
-		String eventString = getAllEventsIdsAndTimes();
-		String[] eventArr = eventString.split(";");
-		for (String rawEvent : eventArr) {
-			String[] rawEventArr = rawEvent.split(",");
-			events.add(new EventTime(rawEventArr[0], rawEventArr[1]));
-		}
-		
-		sortEventsByTime(events);
-		
-		for (int i = 0; i < count; i++) {
-			if (i == events.size()) {
-				break;
-			}
-			eventJson.add(getEventJson(events.get(i).getId()));
-		}*/
 		Gson gson = new Gson();
-		List<NewEventEvent> events = getMostRecentEvents(count);
+		List<EventAndHost> events = getMostRecentEvents(count);
 		
 		
 		return gson.toJson(events.toArray());
 	}
 	
-	public List<NewEventEvent> getMostRecentEvents(int count) {
-		List<NewEventEvent> eventList = new ArrayList<NewEventEvent>();
+	public List<EventAndHost> getMostRecentEvents(int count) {
+		List<EventAndHost> eventList = new ArrayList<EventAndHost>();
 		List<EventTime> events = new ArrayList<EventTime>();
 		String eventString = getAllEventsIdsAndTimes();
 		String[] eventArr = eventString.split(";");
@@ -165,7 +256,7 @@ public class Database {
 			if (i == events.size()) {
 				break;
 			}
-			eventList.add(gson.fromJson(getEventJson(events.get(i).getId()), NewEventEvent.class));
+			eventList.add(gson.fromJson(getEventJson(events.get(i).getId()), EventAndHost.class));
 		}
 		
 		return eventList;
@@ -201,9 +292,17 @@ public class Database {
 		event.setLon(Double.parseDouble(attributes[4]));
 		event.setStartTime(Long.parseLong(attributes[5]));
 		event.setEndTime(Long.parseLong(attributes[6]));
+		
+		User user = getUserInfoModel(event.getHostId());
+		
+		EventAndHost eventAndHost = new EventAndHost();
+		
+		eventAndHost.setEvent(event);
+		eventAndHost.setUser(user);
+		
 		Gson serializer = new Gson();
 		
-		return serializer.toJson(event);
+		return serializer.toJson(eventAndHost);
 		
 	}
 	
